@@ -1,5 +1,6 @@
 #!/bin/sh
 
+cd `pwd`
 version=`git describe --tags`
 command=$1
 
@@ -20,15 +21,9 @@ fi
 
 show_dialog()
 {
-    # Needed when there's exactly one entry in $histfile
-    # Detrimental otherwise
-    if test `wc -l "$histfile" | cut -d ' ' -f 1` -eq 1;
-    then
-        defaultoptionsflag="--entry-text"
-    fi
-
-    prog=`zenity --title "\`_ 'Run…'\`" --text "\`_ 'Select or enter a program to run'\`" --entry $defaultoptionsflag \`cat "$histfile"\``
+    prog=`zenity --title "\`_ 'Run…'\`" --text "\`_ 'Select or enter a program to run'\`" --height \`get_setting height 60\` --width \`get_setting width 80\` --\`get_setting type\` \`get_setting arguments\` \`cat "$histfile"\``
     exitcode=$?
+
     # OK
     if test $exitcode -eq 0;
     then
@@ -80,6 +75,46 @@ _()
     gettext -s "$@"
 }
 
+get_setting()
+{
+    setting=$1
+    default=$2
+    lines=`wc -l "$histfile" | cut -d ' ' -f 1`
+    if test "`which xmllint`";
+    then
+        e=`xmllint --xpath "obrun_config/dialog/$setting$lines/text()" "$configfile"`
+        if test $? -eq 0;
+        then
+            echo $e
+        else
+            e=`xmllint --xpath "obrun_config/dialog/$setting/text()" "$configfile"`
+            if test $? -eq 0;
+            then
+                echo $e
+            else
+                echo $default
+            fi
+        fi
+    else
+        xmessage "`_ 'xmllint not found. Can not read settings'`"
+    fi
+}
+
+
+create_config()
+{
+    indent="    "
+    echo "<obrun_config>"
+    echo "$indent<dialog>"
+    echo "$indent$indent<height>60</height>"
+    echo "$indent$indent<width>80</width>"
+    echo "$indent$indent<type>--entry</type>"
+    echo "$indent$indent<arguments> </arguments>"
+    echo "$indent$indent<arguments1>--entry-text</arguments1>"
+    echo "$indent</dialog>"
+    echo "</obrun_config>"
+}
+
 make_dist()
 {
     # Create a distribution
@@ -111,6 +146,12 @@ histfile=$XDG_CACHE_HOME/openbox/obrun.history
 if test ! -f "$histfile";
 then
     touch "$histfile"
+fi
+
+configfile=$XDG_CONFIG_HOME/openbox/obrun.xml
+if test ! -f "$configfile";
+then
+    create_config > "$configfile"
 fi
 
 case $command in

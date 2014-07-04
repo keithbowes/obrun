@@ -6,3 +6,6 @@ msgstr ""
 
 msgid "zenity not found"
 msgstr ""
+
+msgid "xmllint not found. Can not read settings"
+msgstr ""

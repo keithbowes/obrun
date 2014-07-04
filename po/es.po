@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: obrun-0.1\n"
-"PO-Revision-Date: 2014-07-02 17:16-0400\n"
+"PO-Revision-Date: 2014-07-04 00:33-0400\n"
 "Last-Translator: Keith <keith@localhost>\n"
 "Language-Team: Spanish\n"
 "Language: de\n"
@@ -18,3 +18,6 @@ msgstr "Elegir o entrar un programa a ejecutar"
 
 msgid "zenity not found"
 msgstr "zenity no encontrado"
+
+msgid "xmllint not found. Can not read settings"
+msgstr "xmllint no encontrado. No puedo leer las preferencias."
