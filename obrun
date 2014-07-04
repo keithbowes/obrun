@@ -1,6 +1,8 @@
 #!/bin/sh
 
-cd `pwd`
+# In case it's a symlink to the file in the git repo
+realscript=`stat -c '%N' "$0" | cut -f 2 -d '>' | sed -e 's/^.\{2\}\(.\+\).$/\1/'`
+cd `dirname $realscript`
 version=`git describe --tags`
 command=$1
 
@@ -21,7 +23,7 @@ fi
 
 show_dialog()
 {
-    prog=`zenity --title "\`_ 'Run…'\`" --text "\`_ 'Select or enter a program to run'\`" --height \`get_setting height 60\` --width \`get_setting width 80\` --\`get_setting type\` \`get_setting arguments\` \`cat "$histfile"\``
+    local prog=`zenity --title "\`_ 'Run…'\`" --text "\`_ 'Select or enter a program to run'\`" --height \`get_setting height 60\` --width \`get_setting width 80\` --\`get_setting type\` \`get_setting arguments\` "\`cat \"$histfile\" | sed -e 's/<space>/ /g'\`"`
     exitcode=$?
 
     # OK
@@ -29,9 +31,9 @@ show_dialog()
     then
         if test "$command" == "remove";
         then
-            remove_entry $prog
+            remove_entry "$prog"
         else
-            add_entry $prog
+            add_entry "$prog"
         fi
     # Not Cancelled
     elif test $exitcode -ne 1;
@@ -44,16 +46,17 @@ show_dialog()
 add_entry()
 {
     entry=$1
-    if test -n "$entry";
+    histent=`echo "$entry" | sed 's/ /<space>/g'`
+    if test -n "$histent";
     then
-        if test ! `grep "$entry" "$histfile"`;
+        if test ! `grep "^$histent\$" "$histfile"`;
         then
-            echo "$entry" >> "$histfile"
+            echo "$histent" >> "$histfile"
         fi
 
         if test "$command" != "add";
         then
-            exec "$prog"
+            $SHELL -c "$entry"
         fi
     fi
 }
@@ -108,7 +111,7 @@ create_config()
     echo "$indent<dialog>"
     echo "$indent$indent<height>60</height>"
     echo "$indent$indent<width>80</width>"
-    echo "$indent$indent<type>--entry</type>"
+    echo "$indent$indent<type>entry</type>"
     echo "$indent$indent<arguments> </arguments>"
     echo "$indent$indent<arguments1>--entry-text</arguments1>"
     echo "$indent</dialog>"
@@ -118,7 +121,6 @@ create_config()
 make_dist()
 {
     # Create a distribution
-    cd $HOME
     mkdir obrun-$version
     mkdir obrun-$version/bin
     cp -f $XDG_DATA_HOME/../bin/obrun obrun-$version/bin
@@ -137,7 +139,7 @@ make_dist()
     mkdir obrun-$version/share/locale/es/LC_MESSAGES
     cp -f $XDG_DATA_HOME/locale/es/LC_MESSAGES/obrun.{mo,po} \
         obrun-$version/share/locale/es/LC_MESSAGES
-    tar cf - obrun-$version | gzip -f9 > $HOME/obrun-$version.tar.gz
+    tar cf - obrun-$version | gzip -f9 > obrun-$version.tar.gz
     rm -fr obrun-$version
     exit
 }
