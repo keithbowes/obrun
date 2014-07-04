@@ -1,0 +1,8 @@
+msgid "Run…"
+msgstr ""
+
+msgid "Select or enter a program to run"
+msgstr ""
+
+msgid "zenity not found"
+msgstr ""
