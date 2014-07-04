@@ -59,7 +59,7 @@ then
     defaultoptionsflag="--entry-text"
 fi
 
-prog=$(zenity --title "`_ 'Run…'`" --text "`_ 'Select or enter a program to run'`" --entry $defaultoptionsflag `cat "$histfile"`)
+prog=`zenity --title "\`_ 'Run…'\`" --text "\`_ 'Select or enter a program to run'\`" --entry $defaultoptionsflag \`cat "$histfile"\``
 exitcode=$?
 # OK
 if test $exitcode -eq 0;
