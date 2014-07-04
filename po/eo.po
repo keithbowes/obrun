@@ -1,0 +1,20 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: obrun-0.1\n"
+"PO-Revision-Date: 2014-07-03 22:39-0400\n"
+"Last-Translator: Keith <keith@localhost>\n"
+"Language-Team: Esperanto\n"
+"Language: eo\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Run…"
+msgstr "Plenumigi…"
+
+msgid "Select or enter a program to run"
+msgstr "Elekti aŭ enmeti programon plenumotan"
+
+msgid "zenity not found"
+msgstr "zenity ne trovita"

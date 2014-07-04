@@ -1,0 +1,81 @@
+#!/bin/sh
+
+version=0.1
+
+if test -z "$XDG_CACHE_HOME";
+then
+     XDG_CACHE_HOME=~/.cache
+fi
+
+if test -z "$XDG_DATA_HOME";
+then
+    XDG_DATA_HOME=~/.local/share
+fi
+
+if test "$1" == "dist";
+then
+    # Create a distribution
+    cd $HOME
+    mkdir obrun-$version
+    mkdir obrun-$version/bin
+    cp -f $XDG_DATA_HOME/../bin/obrun obrun-$version/bin
+    mkdir obrun-$version/share
+    mkdir obrun-$version/share/locale
+    cp -f $XDG_DATA_HOME/locale/obrun.pot obrun-$version/share/locale
+    mkdir obrun-$version/share/locale/de
+    mkdir obrun-$version/share/locale/de/LC_MESSAGES
+    cp -f $XDG_DATA_HOME/locale/de/LC_MESSAGES/obrun.{mo,po} \
+        obrun-$version/share/locale/de/LC_MESSAGES
+    mkdir obrun-$version/share/locale/eo
+    mkdir obrun-$version/share/locale/eo/LC_MESSAGES
+    cp -f $XDG_DATA_HOME/locale/eo/LC_MESSAGES/obrun.{mo,po} \
+        obrun-$version/share/locale/eo/LC_MESSAGES
+    mkdir obrun-$version/share/locale/es
+    mkdir obrun-$version/share/locale/es/LC_MESSAGES
+    cp -f $XDG_DATA_HOME/locale/es/LC_MESSAGES/obrun.{mo,po} \
+        obrun-$version/share/locale/es/LC_MESSAGES
+    tar cf - obrun-$version | gzip -f9 > $HOME/obrun-$version.tar.gz
+    rm -fr obrun-$version
+    exit
+fi
+
+export TEXTDOMAIN=obrun
+export TEXTDOMAINDIR=$XDG_DATA_HOME/locale
+_()
+{
+    gettext -s "$@"
+}
+
+histfile=$XDG_CACHE_HOME/openbox/obrun.history
+if test ! -f "$histfile";
+then
+    touch "$histfile"
+fi
+
+# Needed when there's exactly one entry in $histfile
+# Detrimental otherwise
+if test `wc -l "$histfile" | cut -d ' ' -f 1` -eq 1;
+then
+    defaultoptionsflag="--entry-text"
+fi
+
+prog=$(zenity --title "`_ 'Run…'`" --text "`_ 'Select or enter a program to run'`" --entry $defaultoptionsflag `cat "$histfile"`)
+exitcode=$?
+# OK
+if test $exitcode -eq 0;
+then
+    if test -n "$prog";
+    then
+        if test ! `grep "$prog" "$histfile"`;
+        then
+            echo "$prog" >> "$histfile"
+        fi
+
+        exec "$prog"
+    fi
+# Not Cancelled
+elif test $exitcode -ne 1;
+then
+    xmessage "`_ 'zenity not found'`"
+    exit $exitcode;
+fi
