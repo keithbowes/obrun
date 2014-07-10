@@ -83,7 +83,7 @@ get_setting()
     setting=$1
     default=$2
     lines=`wc -l "$histfile" | cut -d ' ' -f 1`
-    if test "`which xmllint`";
+    if which xmllint > /dev/null 2>&1;
     then
         e=`xmllint --xpath "obrun_config/dialog/$setting$lines/text()" "$configfile"`
         if test $? -eq 0;
