@@ -23,7 +23,7 @@ fi
 
 show_dialog()
 {
-    local prog=`zenity --title "\`_ 'Run…'\`" --text "\`_ 'Select or enter a program to run'\`" --height \`get_setting height 60\` --width \`get_setting width 80\` --\`get_setting type\` \`get_setting arguments\` "\`cat \"$histfile\" | sed -e 's/<space>/ /g'\`"`
+    local prog=`zenity --title "\`_ 'Run…'\`" --text "\`_ 'Select or enter a program to run'\`" --height \`get_setting height 60\` --width \`get_setting width 80\` --\`get_setting type\` \`get_setting arguments\` \`cat $histfile\``
     exitcode=$?
 
     # OK
@@ -46,7 +46,7 @@ show_dialog()
 add_entry()
 {
     entry=$1
-    histent=`echo "$entry" | sed 's/ /<space>/g'`
+    histent=`echo "$entry" | sed -e 's/ /<space>/g'`
     if test -n "$histent";
     then
         if test ! `grep "^$histent\$" "$histfile"`;
@@ -56,6 +56,7 @@ add_entry()
 
         if test "$command" != "add";
         then
+            entry=`echo $entry | sed -e 's/<space>/ /g'` 
             $SHELL -c "$entry"
         fi
     fi
