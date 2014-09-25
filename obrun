@@ -6,6 +6,14 @@ cd `dirname $realscript`
 version=`git describe --tags`
 command=$1
 
+# See if we can use can use bashisms
+if test -n "$BASH";
+then
+    is_bash=1
+else
+    is_bash=
+fi
+
 if test -z "$XDG_CACHE_HOME";
 then
      XDG_CACHE_HOME=~/.cache
@@ -23,8 +31,21 @@ fi
 
 show_dialog()
 {
-    local prog=`zenity --title "\`_ 'Run…'\`" --text "\`_ 'Select or enter a program to run'\`" --height \`get_setting height 60\` --width \`get_setting width 80\` --\`get_setting type\` \`get_setting arguments\` \`cat $histfile\``
-    exitcode=$?
+    if test "$is_bash";
+    then
+        local lines=`wc -l $histfile | cut -d ' ' -f 1`
+        local harr
+        for i in `seq 1 $lines`;
+        do
+            harr[$i]=`sed -n ${i}p "$histfile"`
+        done
+        local prog=`zenity --title "\`_ 'Run…'\`" --text "\`_ 'Select or enter a program to run'\`" --height \`get_setting height 60\` --width \`get_setting width 80\` --\`get_setting type\` \`get_setting arguments\` "${harr[@]}"`
+        exitcode=$?
+    else
+        # Suggestions are how to avoid this redundancy are welcome
+        local prog=`zenity --title "\`_ 'Run…'\`" --text "\`_ 'Select or enter a program to run'\`" --height \`get_setting height 60\` --width \`get_setting width 80\` --\`get_setting type\` \`get_setting arguments\` \`cat $histfile\``
+        exitcode=$?
+    fi
 
     # OK
     if test $exitcode -eq 0;
@@ -46,7 +67,13 @@ show_dialog()
 add_entry()
 {
     entry=$1
-    histent=`echo "$entry" | sed -e 's/ /<space>/g'`
+    if test ! $is_bash;
+    then
+        histent=`echo "$entry" | sed -e 's/ /<space>/g'`
+    else
+        histent=$entry
+    fi
+
     if test -n "$histent";
     then
         if test ! `grep "^$histent\$" "$histfile"`;
@@ -56,7 +83,10 @@ add_entry()
 
         if test "$command" != "add";
         then
-            entry=`echo $entry | sed -e 's/<space>/ /g'` 
+            if test ! $is_bash;
+            then
+                entry=`echo $entry | sed -e 's/<space>/ /g'` 
+            fi
             $SHELL -c "$entry"
         fi
     fi
