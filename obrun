@@ -21,13 +21,14 @@ fi
 
 if test -z "$XDG_CONFIG_HOME";
 then
-     XDG_CONFIG_HOME=~/.cache
+     XDG_CONFIG_HOME=~/.config
 fi
 
 if test -z "$XDG_DATA_HOME";
 then
     XDG_DATA_HOME=~/.local/share
 fi
+install -d $XDG_CACHE_HOME $XDG_CONFIG_HOME $XDG_DATA_HOME
 
 show_dialog()
 {
@@ -175,15 +176,13 @@ make_dist()
     exit
 }
 
-install -d $XDG_CACHE_HOME/obrun
-histfile=$XDG_CACHE_HOME/obrun/obrun.history
+histfile=$XDG_CACHE_HOME/obrun.history
 if test ! -f "$histfile";
 then
     touch "$histfile"
 fi
 
-install -d $XDG_CONFIG_HOME/obrun
-configfile=$XDG_CONFIG_HOME/obrun/obrun.xml
+configfile=$XDG_CONFIG_HOME/obrun.xml
 if test ! -f "$configfile";
 then
     create_config > "$configfile"
