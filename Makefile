@@ -1,31 +1,30 @@
 prefix ?= ~/.local
 
-.PHONY: install
+.PHONY: all clean install unistall
+pos = $(wildcard po/*.po)
+mos = $(subst .po,.mo,$(pos))
 
-all:
-	msgfmt --check --statistics -o po/de.mo po/de.po
-	msgfmt --check --statistics -o po/eo.mo po/eo.po
-	msgfmt --check --statistics -o po/es.mo po/es.po
+all: $(mos)
 
 clean:
-	rm -f po/*.mo
+	rm -f $(wildcard po/*.mo)
 
-install:
+install: all
 	install -d $(prefix)/bin
 	install -m 755 obrun $(prefix)/bin
-	install -d $(prefix)/share/locale/de/LC_MESSAGES
-	install -m 644 po/de.mo $(prefix)/share/locale/de/LC_MESSAGES/obrun.mo
-	install -d $(prefix)/share/locale/eo/LC_MESSAGES
-	install -m 644 po/eo.mo $(prefix)/share/locale/eo/LC_MESSAGES/obrun.mo
-	install -d $(prefix)/share/locale/es/LC_MESSAGES
-	install -m 644 po/es.mo $(prefix)/share/locale/es/LC_MESSAGES/obrun.mo
+	$(foreach l,$(mos),install -d $(prefix)/share/locale/$(notdir $(basename $(l)));)
+	$(foreach mo,$(mos),install -m 644 $(mo) $(prefix)/share/locale/$(notdir $(basename $(mo)))/LC_MESSAGES/obrun.mo;)
 
 uninstall:
 	rm -f $(prefix)/bin/obrun
-	rm -f $(prefix)/share/locale/*/LC_MESSAGES/obrun.mo
+	rm -f $(wildcard $(prefix)/share/locale/*/LC_MESSAGES/obrun.mo)
 	-rmdir $(prefix)/bin
-	-rmdir $(prefix)/share/locale/*/LC_MESSAGES
-	-rmdir $(prefix)/share/locale/*
+	-rmdir $(wildcard $(prefix)/share/locale/*/LC_MESSAGES)
+	-rmdir $(wildcard $(prefix)/share/locale/*)
 	-rmdir $(prefix)/share/locale
 	-rmdir $(prefix)/share
 	-rmdir $(prefix)
+
+%.mo: %.po
+	msgfmt --check --statistics -o $@ $<
+
