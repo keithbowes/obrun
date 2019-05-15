@@ -109,7 +109,12 @@ add_entry()
 remove_entry()
 {
     entry=$1
-    php -r "echo preg_replace('/$entry\n/', '', file_get_contents('$histfile'));" > $XDG_CACHE_HOME/.tmp
+    if ! which perl >/dev/null 2>&1;
+    then
+        show_error "`_ Can't remove the entry without perl`"
+    fi
+
+    perl -e '$m=`cat '$histfile'`; $m=~s/'$entry'\n//; print $m;' > $XDG_CACHE_HOME/.tmp
     if test $? -eq 0;
     then
         mv -f $XDG_CACHE_HOME/.tmp $histfile

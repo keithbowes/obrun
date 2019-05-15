@@ -1,4 +1,7 @@
-msgid " Another instance of obrun is already running"
+msgid "Another instance of obrun is already running"
+msgstr ""
+
+msgid "Can't remove the entry without perl"
 msgstr ""
 
 msgid "Run…"
