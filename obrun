@@ -175,13 +175,15 @@ make_dist()
     exit
 }
 
-histfile=$XDG_CACHE_HOME/openbox/obrun.history
+install -d $XDG_CACHE_HOME/obrun
+histfile=$XDG_CACHE_HOME/obrun/obrun.history
 if test ! -f "$histfile";
 then
     touch "$histfile"
 fi
 
-configfile=$XDG_CONFIG_HOME/openbox/obrun.xml
+install -d $XDG_CONFIG_HOME/obrun
+configfile=$XDG_CONFIG_HOME/obrun/obrun.xml
 if test ! -f "$configfile";
 then
     create_config > "$configfile"
