@@ -1,0 +1,1 @@
+obrun is just a little run dialog for window managers that don't have one.  I originally wrote it for myself for Openbox, but it's also useful in Wayland compositors without Xwayland, as it uses zenity to actually create the dialog; the only other requiremet is libxml2 to parse the settings, but you probably have both of those installed already.
