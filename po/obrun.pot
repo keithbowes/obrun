@@ -1,11 +1,14 @@
+msgid " Another instance of obrun is already running"
+msgstr ""
+
 msgid "Run…"
 msgstr ""
 
 msgid "Select or enter a program to run"
 msgstr ""
 
-msgid "zenity not found"
+msgid "xmllint not found. Can not read settings"
 msgstr ""
 
-msgid "xmllint not found. Can not read settings"
+msgid "zenity not found"
 msgstr ""

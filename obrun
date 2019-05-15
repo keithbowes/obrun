@@ -30,8 +30,20 @@ then
 fi
 install -d $XDG_CACHE_HOME $XDG_CONFIG_HOME $XDG_DATA_HOME
 
+show_error()
+{
+    zenity --error --text="$1" || xmessage "$1" || echo "$1" >&2
+}
+
 show_dialog()
 {
+    if test -f $XDG_CACHE_HOME/obrun.lock;
+    then
+        show_error "`_ Another instance of obrun is already running`"
+        exit
+    fi
+    touch $XDG_CACHE_HOME/obrun.lock
+
     if test "$is_bash";
     then
         local lines=`wc -l $histfile | cut -d ' ' -f 1`
@@ -60,9 +72,10 @@ show_dialog()
     # Not Cancelled
     elif test $exitcode -ne 1;
     then
-        xmessage "`_ 'zenity not found'`"
-        exit $exitcode;
+        show_error "`_ 'zenity not found'`"
     fi
+    rm -f $XDG_CACHE_HOME/obrun.lock
+    exit $exitcode
 }
 
 add_entry()
@@ -131,7 +144,7 @@ get_setting()
             fi
         fi
     else
-        xmessage "`_ 'xmllint not found. Can not read settings'`"
+        show_error "`_ 'xmllint not found. Can not read settings'`"
     fi
 }
 

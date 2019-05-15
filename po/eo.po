@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: obrun-0.1\n"
-"PO-Revision-Date: 2014-07-04 00:32-0400\n"
+"PO-Revision-Date: 2019-05-15 18:06-0400\n"
 "Last-Translator: Keith <keith@localhost>\n"
 "Language-Team: Esperanto\n"
 "Language: eo\n"
@@ -10,14 +10,17 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+msgid " Another instance of obrun is already running"
+msgstr "Alia okazo de obrun jam plenumiĝas"
+
 msgid "Run…"
 msgstr "Plenumigi…"
 
 msgid "Select or enter a program to run"
 msgstr "Elekti aŭ enmeti programon plenumotan"
 
-msgid "zenity not found"
-msgstr "zenity ne trovita"
-
 msgid "xmllint not found. Can not read settings"
 msgstr "xmllint ne trovita. Ne eblas legi la agordon."
+
+msgid "zenity not found"
+msgstr "zenity ne trovita"
