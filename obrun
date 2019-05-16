@@ -101,7 +101,7 @@ add_entry()
             then
                 entry=`echo $entry | sed -e 's/<space>/ /g'` 
             fi
-            $SHELL -c "$entry"
+            $SHELL -c "$entry &"
         fi
     fi
 }
