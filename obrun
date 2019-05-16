@@ -39,7 +39,7 @@ show_dialog()
 {
     if test -f $XDG_CACHE_HOME/obrun.lock;
     then
-        show_error "`_ Another instance of obrun is already running`"
+        show_error "`_ 'Another instance of obrun is already running'`"
         exit
     fi
     touch $XDG_CACHE_HOME/obrun.lock
