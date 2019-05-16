@@ -111,7 +111,7 @@ remove_entry()
     entry=$1
     if ! which perl >/dev/null 2>&1;
     then
-        show_error "`_ Can't remove the entry without perl`"
+        show_error "`_ 'Can'\'t' remove the entry without perl'`"
     fi
 
     perl -e '$m=`cat '$histfile'`; $m=~s/'$entry'\n//; print $m;' > $XDG_CACHE_HOME/.tmp
