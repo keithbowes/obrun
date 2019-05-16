@@ -125,7 +125,7 @@ export TEXTDOMAIN=obrun
 export TEXTDOMAINDIR=$XDG_DATA_HOME/locale
 _()
 {
-    gettext -s "$@"
+    which gettext >/dev/null 2>&1 && gettext -s "$@" || echo "$@"
 }
 
 get_setting()

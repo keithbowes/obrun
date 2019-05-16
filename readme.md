@@ -13,7 +13,8 @@ Requirement  | Reason
 -------------|-----------------------------------------------------------------
 Bourne shell | You can't run this script without it
 [zenity]     | Used to produce the dialog
-[gettext]    | Needed for the localized messages
+[gettext]    | Needed for the localized messages (optional, if you don't need
+             | localized messages)
 [xmllint]    | Used to read the settings file (optional, if you don't care
              | about keeping your settings)
 [Perl]       | Needed to remove entries from the history file (optional)
