@@ -12,8 +12,9 @@ clean:
 install: all
 	install -d $(prefix)/bin
 	install -m 755 obrun $(prefix)/bin
-	$(foreach l,$(mos),install -d $(prefix)/share/locale/$(notdir $(basename $(l)));)
-	$(foreach mo,$(mos),install -m 644 $(mo) $(prefix)/share/locale/$(notdir $(basename $(mo)))/LC_MESSAGES/obrun.mo;)
+	$(foreach mo,$(mos),install -d $(prefix)/share/locale/$(notdir $(basename $(mo)))/LC_MESSAGES; \
+		install -m 644 $(mo) $(prefix)/share/locale/$(notdir $(basename $(mo)))/LC_MESSAGES/obrun.mo; \
+	)
 
 uninstall:
 	rm -f $(prefix)/bin/obrun
