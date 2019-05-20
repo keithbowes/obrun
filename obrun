@@ -36,21 +36,22 @@ show_dialog()
     fi
     touch $XDG_CACHE_HOME/obrun.lock
 
-    local prog=$(cat $histfile | xargs zenity --title "`_ 'Run…'`" --text "`_ 'Select or enter a program to run'`" --height `get_setting height 60` --width `get_setting width 80` --`get_setting type` `get_setting arguments`)
-    exitcode=$?
+    if which zenity >/dev/null 2>&1;
+    then
+        local prog=$(cat $histfile | xargs zenity --title "`_ 'Run…'`" --text "`_ 'Select or enter a program to run'`" --height `get_setting height 60` --width `get_setting width 80` --`get_setting type` `get_setting arguments`)
+        exitcode=$?
 
-    # OK
-    if test $exitcode -eq 0;
-    then
-        if test "$command" == "remove";
+        # OK
+        if test $exitcode -eq 0;
         then
-            remove_entry "$prog"
-        else
-            add_entry "$prog"
+            if test "$command" == "remove";
+            then
+                remove_entry "$prog"
+            else
+                add_entry "$prog"
+            fi
         fi
-    # Not Cancelled
-    elif test $exitcode -ne 1;
-    then
+    else
         show_error "`_ 'zenity not found'`"
     fi
     rm -f $XDG_CACHE_HOME/obrun.lock
