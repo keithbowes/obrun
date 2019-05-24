@@ -1,6 +1,6 @@
-prefix ?= ~/.local
+prefix ?= $(HOME)/.local
 
-.PHONY: all clean install unistall
+.PHONY: all clean install uninstall
 pos = $(wildcard po/*.po)
 mos = $(subst .po,.mo,$(pos))
 
