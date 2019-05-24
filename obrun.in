@@ -1,11 +1,5 @@
 #!/bin/sh
 
-# In case it's a symlink to the file in the git repo
-readlink $0 && realscript=$(readlink $0) || realscript=$0
-cd `dirname $realscript`
-version=`git describe --tags`
-command=$1
-
 if test -z "$XDG_CACHE_HOME";
 then
      XDG_CACHE_HOME=~/.cache
@@ -92,7 +86,7 @@ remove_entry()
 }
 
 export TEXTDOMAIN=obrun
-export TEXTDOMAINDIR=$XDG_DATA_HOME/locale
+export TEXTDOMAINDIR=@prefix@/share/locale
 _()
 {
     which gettext >/dev/null 2>&1 && gettext -s "$@" || echo "$@"
@@ -138,32 +132,6 @@ create_config()
     echo "</obrun_config>"
 }
 
-make_dist()
-{
-    # Create a distribution
-    mkdir obrun-$version
-    mkdir obrun-$version/bin
-    cp -f $XDG_DATA_HOME/../bin/obrun obrun-$version/bin
-    mkdir obrun-$version/share
-    mkdir obrun-$version/share/locale
-    cp -f $XDG_DATA_HOME/locale/obrun.pot obrun-$version/share/locale
-    mkdir obrun-$version/share/locale/de
-    mkdir obrun-$version/share/locale/de/LC_MESSAGES
-    cp -f $XDG_DATA_HOME/locale/de/LC_MESSAGES/obrun.{mo,po} \
-        obrun-$version/share/locale/de/LC_MESSAGES
-    mkdir obrun-$version/share/locale/eo
-    mkdir obrun-$version/share/locale/eo/LC_MESSAGES
-    cp -f $XDG_DATA_HOME/locale/eo/LC_MESSAGES/obrun.{mo,po} \
-        obrun-$version/share/locale/eo/LC_MESSAGES
-    mkdir obrun-$version/share/locale/es
-    mkdir obrun-$version/share/locale/es/LC_MESSAGES
-    cp -f $XDG_DATA_HOME/locale/es/LC_MESSAGES/obrun.{mo,po} \
-        obrun-$version/share/locale/es/LC_MESSAGES
-    tar cf - obrun-$version | gzip -f9 > obrun-$version.tar.gz
-    rm -fr obrun-$version
-    exit
-}
-
 test -f $XDG_CACHE_HOME/openbox/obrun.history && \
     mv $XDG_CACHE_HOME/openbox/obrun.history $XDG_CACHE_HOME/obrun.history
 histfile=$XDG_CACHE_HOME/obrun.history
@@ -180,12 +148,18 @@ then
     create_config > "$configfile"
 fi
 
-case $command in
-    dist)
-        make_dist;;
-    *help|-h)
-        echo "obrun [add|dist|remove]";
-        exit;;
-    *)
-        show_dialog;;
-esac
+for opt in $@;
+do
+    case $opt in
+        *-h*|*-u*)
+            echo "obrun [add|remove]";
+            exit
+            ;;
+        *-v*)
+            echo "@version@"
+            exit
+            ;;
+    esac
+done
+
+show_dialog

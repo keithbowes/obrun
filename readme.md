@@ -29,4 +29,4 @@ By default, it will get installed to `$HOME`/.local
 
 `obrun [action]`
 
-Currently `action` can be one of: `add`, `remove`, `dist`.  Without an action, it will `add` the entry to the history *and* execute it.
+Currently `action` can be one of: `add`, `remove`.  Without an action, it will `add` the entry to the history *and* execute it.
