@@ -164,12 +164,16 @@ make_dist()
     exit
 }
 
+test -f $XDG_CACHE_HOME/openbox/obrun.history && \
+    mv $XDG_CACHE_HOME/openbox/obrun.history $XDG_CACHE_HOME/obrun.history
 histfile=$XDG_CACHE_HOME/obrun.history
 if test ! -f "$histfile";
 then
     touch "$histfile"
 fi
 
+test -f $XDG_CONFIG_HOME/openbox/obrun.xml && \
+    mv $XDG_CONFIG_HOME/openbox/obrun.xml $XDG_CONFIG_HOME/obrun.xml
 configfile=$XDG_CONFIG_HOME/obrun.xml
 if test ! -f "$configfile";
 then
