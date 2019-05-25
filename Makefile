@@ -2,11 +2,11 @@ prefix ?= $(HOME)/.local
 pwd=$(shell pwd)
 version=$(shell git describe --tags)
 
-.PHONY: all clean dist install uninstall
-pos = $(wildcard po/*.po)
-mos = $(subst .po,.mo,$(pos))
+export prefix version
 
-all: $(mos) obrun
+.PHONY: all clean dist install uninstall
+all: obrun
+	cd po && $(MAKE)
 
 obrun: obrun.in
 	sed -e 's:@prefix@:$(prefix):g' \
@@ -15,8 +15,8 @@ obrun: obrun.in
 	chmod +x $@
 
 clean:
+	cd po && $(MAKE) clean
 	rm -f obrun
-	rm -f $(wildcard po/*.mo)
 
 # Create a distribution
 dist:
@@ -26,22 +26,13 @@ dist:
 	$(MAKE) uninstall prefix=$(TMP)/obrun-$(version)
 
 install: all
+	cd po && $(MAKE) install
 	install -d $(prefix)/bin
 	install -m 755 obrun $(prefix)/bin
-	$(foreach mo,$(mos),install -d $(prefix)/share/locale/$(notdir $(basename $(mo)))/LC_MESSAGES; \
-		install -m 644 $(mo) $(prefix)/share/locale/$(notdir $(basename $(mo)))/LC_MESSAGES/obrun.mo; \
-	)
 
 uninstall:
+	cd po && $(MAKE) uninstall
 	rm -f $(prefix)/bin/obrun
 	rm -f $(wildcard $(prefix)/share/locale/*/LC_MESSAGES/obrun.mo)
 	-rmdir $(prefix)/bin
-	-rmdir $(wildcard $(prefix)/share/locale/*/LC_MESSAGES)
-	-rmdir $(wildcard $(prefix)/share/locale/*)
-	-rmdir $(prefix)/share/locale
-	-rmdir $(prefix)/share
 	-rmdir $(prefix)
-
-%.mo: %.po
-	msgfmt --check --statistics -o $@ $<
-
