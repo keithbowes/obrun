@@ -20,7 +20,7 @@ export TEXTDOMAIN=obrun
 export TEXTDOMAINDIR=@prefix@/share/locale
 _()
 {
-    which gettext >/dev/null 2>&1 && gettext "$@" || echo "$@"
+    which gettext >/dev/null 2>&1 && gettext -s "$@" || echo "$@"
 }
 
 for prog in gettext perl zenity;
@@ -33,33 +33,20 @@ done
 
 show_dialog()
 {
-    if test -f $XDG_CACHE_HOME/obrun.lock;
-    then
-        _ 'Another instance of obrun is already running' >&2
-        exit
-    fi
-    touch $XDG_CACHE_HOME/obrun.lock
-
-    local prog=$(cat $histfile | xargs zenity --title "`_ 'Run…'`" --text "`_ 'Select or enter a program to run'`" --height `get_setting height 60` --width `get_setting width 80` --`get_setting type` `get_setting arguments`)
-    exitcode=$?
-
-    # OK
-    if test $exitcode -eq 0;
-    then
-        if test "$command" == "remove";
-        then
-            remove_entry "$prog"
-        else
-            add_entry "$prog"
-        fi
-    fi
-    rm -f $XDG_CACHE_HOME/obrun.lock
-    exit $exitcode
+    echo `cat $histfile | xargs zenity --title "\`_ \"$title\"\`" --text "\`_ \"$text\"\`" --height \`get_setting height 60\` --width \`get_setting width 80\` --\`get_setting type\` \`get_setting arguments\``
 }
 
 add_entry()
 {
-    entry=$1
+    if test "$ago" = 's';
+    then
+        text="`_ 'Select or enter a program to run'`"
+        title="`_ 'Run…'`"
+    else
+        text="`_ 'Enter a program to add'`"
+        title="` _ 'Add…'`"
+    fi
+    entry=`show_dialog`
 
     if test -n "$entry";
     then
@@ -68,16 +55,18 @@ add_entry()
             echo "$entry" >> "$histfile"
         fi
 
-        if test "$command" != "add";
+        if test "$ago" != "a";
         then
             $SHELL -c "$entry &"
         fi
     fi
 }
 
-remove_entry()
+free_entry()
 {
-    entry=$1
+    text="`_ 'Select a program to remove'`"
+    title="`_ 'Remove...'`"
+    entry=`show_dialog`
     perl -e '$m=`cat '$histfile'`; $m=~s/'$entry'\n//; print $m;' > $XDG_CACHE_HOME/.tmp
     if test $? -eq 0;
     then
@@ -135,12 +124,51 @@ then
     create_config > "$configfile"
 fi
 
+ago=l
+use_lock=1
 for opt in $@;
 do
     case $opt in
+        a*)
+            ago=a
+            ;;
+        f*)
+            ago=f
+            ;;
+        l*)
+            ago=l
+            ;;
+        p*)
+            ago=p
+            ;;
+        s*)
+            ago=s
+            ;;
         *-h*|*-u*)
-            echo "obrun [add|remove]";
+            _ 'obrun [action] [option]'
+            printf "`_ 'actions:
+add
+  adds an entry to the history
+free
+  frees an entry from the history
+list
+  choose from a list of the programs with desktop entries
+path
+  choose from a list of programs available in your path
+simple
+  produces a simple run dialog
+'`"
+            echo
+            printf "`_ 'options:
+-h         Show this help
+-n         Do not create a lock file
+-v         Display the version
+'`"
+            echo
             exit
+            ;;
+        *-n*)
+            use_lock=0
             ;;
         *-v*)
             echo "@version@"
@@ -149,4 +177,25 @@ do
     esac
 done
 
-show_dialog
+if test -f $XDG_CACHE_HOME/obrun.lock;
+then
+    _ 'Another instance of obrun is already running' >&2
+    exit
+fi
+test $use_lock -ne 0 && touch $XDG_CACHE_HOME/obrun.lock
+
+case $ago in
+    a|s)
+        add_entry
+        ;;
+    f)
+        free_entry
+        ;;
+    l)
+        desktop_menu
+        ;;
+    p)
+        path_menu
+        ;;
+esac
+rm -f $XDG_CACHE_HOME/obrun.lock

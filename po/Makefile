@@ -20,7 +20,7 @@ uninstall:
 	-rmdir $(prefix)/share
 
 obrun.pot: ../obrun
-	xgettext -L shell -k_ -o $@ --from-code=utf-8 --no-location \
+	xgettext -L shell -k -k_ -o $@ --from-code=utf-8 --no-location \
 		--package-name=obrun --package-version=$(version) $<
 
 %.po: obrun.pot
