@@ -38,6 +38,6 @@ By default, it will get installed to `$HOME`/.local
 
 `obrun [action] [option]`
 
-Currently `action` can be one of: `add`, `free`, `simple`. `list` and `path` are planned, but aren't yet implemented.  `list` is the default.  Inspired by [xclip](https://github.com/astrand/xclip/), only the first letter is significant, so you can use `a`, `add`, or `archpriesthood`, and they will be treated the same. `simple` is the equivalent of running obrun 0.1 or 0.2 without an action.
+Currently `action` can be one of: `add`, `free`, `path`, `simple`. `list` is planned, but isn't yet implemented.  `list` is the default. `simple` is the equivalent of running obrun 0.1 or 0.2 without an action.  Inspired by [xclip](https://github.com/astrand/xclip/), only the first letter is significant, so you can use `a`, `add`, or `archpriesthood`, and they will be treated the same.
 
 `option` can be one of: `-h` (help), `-n` (no lock), `-v` (version).  Again, only the first letter is significant, so, `-v`, `--version`, and `--my-own-vigil` will show the version.
