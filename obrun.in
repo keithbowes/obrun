@@ -16,18 +16,24 @@ then
 fi
 install -d $XDG_CACHE_HOME $XDG_CONFIG_HOME $XDG_DATA_HOME
 
-export TEXTDOMAIN=obrun
-export TEXTDOMAINDIR=@prefix@/share/locale
 _()
 {
-    which gettext >/dev/null 2>&1 && gettext -s "$@" || echo "$@"
+    if which gettext.sh >/dev/null;
+    then
+        . gettext.sh
+        export TEXTDOMAIN=obrun
+        export TEXTDOMAINDIR=@prefix@/share/locale
+        eval_gettext "$1"
+    else
+        echo "$1"
+    fi
 }
 
 for prog in gettext perl zenity;
 do
     if ! which $prog >/dev/null 2>&1;
     then
-        printf "`_ 'WARNING: %s not found. obrun may not work correctly.\n'`" "$prog" >&2
+        printf "`_ 'WARNING: %s not found. obrun may not work correctly.'`\n" "$prog" >&2
     fi
 done
 
@@ -78,7 +84,7 @@ show_path_menu()
 {
     # Using grep, which is faster than using: -exec basename '{}' \;
     # but is probably less accurate
-    local prog=`find \`echo $PATH | tr ':' '\n'\` -follow -maxdepth 1 -type f -executable | grep -o '[^/]\+$' | sort | uniq | xargs zenity --text "\`_ 'Select a program to run out of the list'\`" --title "\`_ 'Run…'\`" --list --column "\`_ 'Available programs'\`"`
+    local prog=`find -L \`echo $PATH | tr ':' '\n' | sed -e 's/$/\/*/g'\`/ -prune -type f \( -perm -u=x -o -perm -g=x -o -perm -o=x \) | grep -o '[^/]\+$' | sort | uniq | xargs zenity --text "\`_ 'Select a program to run out of the list'\`" --title "\`_ 'Run…'\`" --list --column "\`_ 'Available programs'\`"`
     if test -n "$prog";
     then
         $SHELL -c "$prog &"
@@ -156,7 +162,7 @@ do
             ago=s
             ;;
         *-h*|*-u*)
-            _ 'obrun [action] [option]'
+            printf "`_ '%s [action] [option]'`\n" "$0"
             printf "`_ 'actions:
 add
   adds an entry to the history
@@ -190,7 +196,7 @@ done
 
 if test -f $XDG_CACHE_HOME/obrun.lock;
 then
-    _ 'Another instance of obrun is already running' >&2
+    printf "`_ 'Another instance of obrun is already running'`\n" >&2
     exit
 fi
 test $use_lock -ne 0 && touch $XDG_CACHE_HOME/obrun.lock
