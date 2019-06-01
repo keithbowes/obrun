@@ -204,7 +204,7 @@ simple
     esac
 done
 
-if test -f $XDG_CACHE_HOME/obrun.lock;
+if test -f $XDG_CACHE_HOME/obrun.lock -a $use_lock -ne 0;
 then
     printf "`_ 'Another instance of obrun is already running'`\n" >&2
     exit
@@ -225,4 +225,4 @@ case $ago in
         show_path_menu
         ;;
 esac
-rm -f $XDG_CACHE_HOME/obrun.lock
+test $use_lock -ne 0 && rm -f $XDG_CACHE_HOME/obrun.lock
