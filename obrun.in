@@ -80,14 +80,24 @@ free_entry()
     fi
 }
 
-show_path_menu()
+show_list_menu()
 {
+    local data_dirs=$XDG_DATA_HOME:${XDG_DATA_DIRS:-/usr/local/share/:/usr/share/}:
     # Using grep, which is faster than using: -exec basename '{}' \;
     # but is probably less accurate
+    local prog=`ls \`echo $data_dirs | sed -e 's:\::/applications/*.desktop :g'\` | grep -o '[^/]\+$' | sort | uniq | xargs zenity --text "\`_ 'Select a program to run out of the list'\`" --title "\`_ 'Run…'\`" --list --column "\`_ 'Available programs'\`"`
+    if test -n "$prog";
+    then
+        gtk-launch "$prog"
+    fi
+}
+
+show_path_menu()
+{
     local prog=`find -L \`echo $PATH | tr ':' '\n' | sed -e 's/$/\/*/g'\`/ -prune -type f \( -perm -u=x -o -perm -g=x -o -perm -o=x \) | grep -o '[^/]\+$' | sort | uniq | xargs zenity --text "\`_ 'Select a program to run out of the list'\`" --title "\`_ 'Run…'\`" --list --column "\`_ 'Available programs'\`"`
     if test -n "$prog";
     then
-        $SHELL -c "$prog &"
+        /bin/sh -c "$prog &"
     fi
 }
 
@@ -209,7 +219,7 @@ case $ago in
         free_entry
         ;;
     l)
-        show_desktop_menu
+        show_list_menu
         ;;
     p)
         show_path_menu
