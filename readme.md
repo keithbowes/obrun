@@ -41,3 +41,7 @@ By default, it will get installed to `$HOME`/.local
 Currently `action` can be one of: `add`, `free`, `list`, `path`, `simple`.  `list` is the default. `simple` is the equivalent of running obrun 0.1 or 0.2 without an action.  Inspired by [xclip](https://github.com/astrand/xclip/), only the first letter is significant, so you can use `a`, `add`, or `archpriesthood`, and they will be treated the same.
 
 `option` can be one of: `-h` (help), `-n` (no lock), `-v` (version).  Again, only the first letter is significant, so, `-v`, `--version`, and `--my-own-vigil` will show the version.
+
+## Screenshots
+
+They're in the `ekran` directory.
