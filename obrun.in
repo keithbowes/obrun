@@ -1,21 +1,5 @@
 #!/bin/sh
 
-if test -z "$XDG_CACHE_HOME";
-then
-     XDG_CACHE_HOME=~/.cache
-fi
-
-if test -z "$XDG_CONFIG_HOME";
-then
-     XDG_CONFIG_HOME=~/.config
-fi
-
-if test -z "$XDG_DATA_HOME";
-then
-    XDG_DATA_HOME=~/.local/share
-fi
-install -d $XDG_CACHE_HOME $XDG_CONFIG_HOME $XDG_DATA_HOME
-
 _()
 {
     if which gettext.sh >/dev/null;
@@ -29,7 +13,7 @@ _()
     fi
 }
 
-for prog in gettext perl zenity;
+for prog in gettext zenity;
 do
     if ! which $prog >/dev/null 2>&1;
     then
@@ -37,54 +21,15 @@ do
     fi
 done
 
-show_dialog()
+show_simple()
 {
-    echo `cat $histfile | xargs zenity --title "\`_ \"$title\"\`" --text "\`_ \"$text\"\`" --height \`get_setting height 60\` --width \`get_setting width 80\` --\`get_setting type\` \`get_setting arguments\``
-}
-
-add_entry()
-{
-    if test "$ago" = 's';
-    then
-        text="`_ 'Select or enter a program to run'`"
-        title="`_ 'Run…'`"
-    else
-        text="`_ 'Enter a program to add'`"
-        title="` _ 'Add…'`"
-    fi
-    entry=`show_dialog`
-
-    if test -n "$entry";
-    then
-        if ! grep "^$entry\$" "$histfile" >/dev/null;
-        then
-            echo "$entry" >> "$histfile"
-        fi
-
-        if test "$ago" != "a";
-        then
-            $SHELL -c "$entry &"
-        fi
-    fi
-}
-
-free_entry()
-{
-    text="`_ 'Select a program to remove'`"
-    title="`_ 'Remove…'`"
-    entry=`show_dialog`
-    perl -e '$m=`cat '$histfile'`; $m=~s/'$entry'\n//; print $m;' > $XDG_CACHE_HOME/.tmp
-    if test $? -eq 0;
-    then
-        mv -f $XDG_CACHE_HOME/.tmp $histfile
-    fi
+    echo `zenity --title "\`_ 'Run…'\`" --text "\`_ \"Enter a program to run\"\`" --entry`
 }
 
 show_list_menu()
 {
+    test -n "$XDG_DATA_HOME" || XDG_DATA_HOME=~/.local/share
     local data_dirs=$XDG_DATA_HOME:${XDG_DATA_DIRS:-/usr/local/share/:/usr/share/}:
-    # Using grep, which is faster than using: -exec basename '{}' \;
-    # but is probably less accurate
     local prog=`ls \`echo $data_dirs | sed -e 's:\::/applications/*.desktop :g'\` | grep -o '[^/]\+$' | sort | uniq | xargs zenity --text "\`_ 'Select a program to run out of the list'\`" --title "\`_ 'Run…'\`" --list --column "\`_ 'Available programs'\`"`
     if test -n "$prog";
     then
@@ -94,74 +39,19 @@ show_list_menu()
 
 show_path_menu()
 {
-    local prog=`find -L \`echo $PATH | tr ':' '\n' | sed -e 's/$/\/*/g'\`/ -prune -type f \( -perm -u=x -o -perm -g=x -o -perm -o=x \) | grep -o '[^/]\+$' | sort | uniq | xargs zenity --text "\`_ 'Select a program to run out of the list'\`" --title "\`_ 'Run…'\`" --list --column "\`_ 'Available programs'\`"`
+    # Using grep, which is faster than using: -exec basename '{}' \;
+    # but is probably less accurate
+    local prog=`find -L \`echo $PATH | tr ':' '\n' | sed -e 's/$/\/*/g'\` -prune -type f \( -perm -u=x -o -perm -g=x -o -perm -o=x \) | grep -o '[^/]\+$' | sort | uniq | xargs zenity --text "\`_ 'Select a program to run out of the list'\`" --title "\`_ 'Run…'\`" --list --column "\`_ 'Available programs'\`"`
     if test -n "$prog";
     then
         /bin/sh -c "$prog &"
     fi
 }
 
-get_setting()
-{
-    setting=$1
-    default=$2
-    lines=`wc -l "$histfile" | cut -d ' ' -f 1`
-    e=`xmllint --xpath "obrun_config/dialog/$setting$lines/text()" "$configfile"`
-    if test $? -eq 0;
-    then
-        echo $e
-    else
-        e=`xmllint --xpath "obrun_config/dialog/$setting/text()" "$configfile"`
-        if test $? -eq 0;
-        then
-            echo $e
-        else
-            echo $default
-        fi
-    fi
-}
-
-create_config()
-{
-    indent="    "
-    echo "<obrun_config>"
-    echo "$indent<dialog>"
-    echo "$indent$indent<height>60</height>"
-    echo "$indent$indent<width>80</width>"
-    echo "$indent$indent<type>entry</type>"
-    echo "$indent$indent<arguments> </arguments>"
-    echo "$indent$indent<arguments1>--entry-text</arguments1>"
-    echo "$indent</dialog>"
-    echo "</obrun_config>"
-}
-
-test -f $XDG_CACHE_HOME/openbox/obrun.history && \
-    mv $XDG_CACHE_HOME/openbox/obrun.history $XDG_CACHE_HOME/obrun.history
-histfile=$XDG_CACHE_HOME/obrun.history
-if test ! -f "$histfile";
-then
-    touch "$histfile"
-fi
-
-test -f $XDG_CONFIG_HOME/openbox/obrun.xml && \
-    mv $XDG_CONFIG_HOME/openbox/obrun.xml $XDG_CONFIG_HOME/obrun.xml
-configfile=$XDG_CONFIG_HOME/obrun.xml
-if test ! -f "$configfile";
-then
-    create_config > "$configfile"
-fi
-
 ago=l
-use_lock=1
 for opt in $@;
 do
     case $opt in
-        a*)
-            ago=a
-            ;;
-        f*|r*)
-            ago=f
-            ;;
         l*)
             ago=l
             ;;
@@ -174,10 +64,6 @@ do
         *-h*|*-u*)
             printf "`_ '%s [action] [option]'`\n" "$0"
             printf "`_ 'actions:
-add
-  adds an entry to the history
-free
-  frees an entry from the history
 list
   choose from a list of the programs with desktop entries
 path
@@ -188,14 +74,10 @@ simple
             echo
             printf "`_ 'options:
 -h         Show this help
--n         Do not create a lock file
 -v         Display the version
 '`"
             echo
             exit
-            ;;
-        *-n*)
-            use_lock=0
             ;;
         *-v*)
             echo "@version@"
@@ -204,25 +86,14 @@ simple
     esac
 done
 
-if test -f $XDG_CACHE_HOME/obrun.lock -a $use_lock -ne 0;
-then
-    printf "`_ 'Another instance of obrun is already running'`\n" >&2
-    exit
-fi
-test $use_lock -ne 0 && touch $XDG_CACHE_HOME/obrun.lock
-
 case $ago in
-    a|s)
-        add_entry
-        ;;
-    f)
-        free_entry
-        ;;
     l)
         show_list_menu
         ;;
     p)
         show_path_menu
         ;;
+    s)
+        show_simple
+        ;;
 esac
-test $use_lock -ne 0 && rm -f $XDG_CACHE_HOME/obrun.lock
