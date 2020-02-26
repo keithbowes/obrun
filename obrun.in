@@ -23,7 +23,11 @@ done
 
 show_simple()
 {
-    echo `zenity --title "\`_ 'Run…'\`" --text "\`_ \"Enter a program to run\"\`" --entry`
+    local prog=`zenity --title "\`_ 'Run…'\`" --text "\`_ \"Enter a program to run\"\`" --entry`
+    if test -n "$prog";
+    then
+        /bin/sh -c "$prog &"
+    fi
 }
 
 show_list_menu()
